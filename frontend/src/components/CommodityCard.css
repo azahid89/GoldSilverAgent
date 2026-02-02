@@ -1,0 +1,181 @@
+.commodity-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  transition: all 0.2s;
+}
+
+.commodity-card:hover {
+  border-color: #475569;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.card-header {
+  margin-bottom: 1.5rem;
+}
+
+.card-title-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.card-title-section h3 {
+  font-size: 1.5rem;
+  color: #fbbf24;
+}
+
+.signal-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.confidence-meter {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.confidence-label {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  min-width: 80px;
+}
+
+.confidence-bar {
+  flex: 1;
+  height: 8px;
+  background: #334155;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.confidence-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.confidence-value {
+  color: #e2e8f0;
+  font-weight: 600;
+  min-width: 50px;
+  text-align: right;
+}
+
+.card-body {
+  color: #cbd5e1;
+}
+
+.drivers-section h4,
+.agent-breakdown h4,
+.invalidation-section h4 {
+  color: #fbbf24;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+.drivers-section ul,
+.invalidation-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.drivers-section li,
+.invalidation-section li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #334155;
+  color: #cbd5e1;
+}
+
+.drivers-section li:last-child,
+.invalidation-section li:last-child {
+  border-bottom: none;
+}
+
+.expand-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  margin-top: 1rem;
+  background: #334155;
+  border: 1px solid #475569;
+  border-radius: 0.5rem;
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.expand-btn:hover {
+  background: #475569;
+  color: #fbbf24;
+}
+
+.expanded-content {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #334155;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.agent-breakdown {
+  margin-bottom: 1.5rem;
+}
+
+.agent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.agent-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #0f172a;
+  border-radius: 0.5rem;
+  border: 1px solid #1e293b;
+}
+
+.agent-name {
+  text-transform: capitalize;
+  color: #cbd5e1;
+  font-weight: 500;
+}
+
+.agent-signal {
+  text-transform: capitalize;
+  font-weight: 600;
+}
+
+.agent-confidence {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.invalidation-section {
+  margin-top: 1.5rem;
+}
+
