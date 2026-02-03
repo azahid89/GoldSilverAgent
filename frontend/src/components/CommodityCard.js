@@ -106,3 +106,5 @@ const CommodityCard = ({ commodity, prediction, getSignalIcon, getSignalColor })
 
 export default CommodityCard;
 
+
+

@@ -52,3 +52,5 @@ const pricesSlice = createSlice({
 export const { clearPrices } = pricesSlice.actions;
 export default pricesSlice.reducer;
 
+
+

@@ -75,7 +75,7 @@ RISKS: [risk factors]
 SCENARIOS: [scenarios]"""
 
             response = self.client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": "You are a professional commodities analyst. Provide factual, balanced analysis without investment advice."},
                     {"role": "user", "content": prompt}
@@ -175,4 +175,6 @@ SCENARIOS: [scenarios]"""
                     result["why"] = line
         
         return result
+
+
 

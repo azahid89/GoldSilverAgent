@@ -89,3 +89,5 @@ class ETFClient:
             "price_change_30d": float((data["Close"].iloc[-1] / data["Close"].iloc[-30] - 1) * 100),
         }
 
+
+

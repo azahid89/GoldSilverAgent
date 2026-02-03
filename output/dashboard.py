@@ -99,3 +99,5 @@ INVALIDATION CONDITIONS
             }
         return summary
 
+
+

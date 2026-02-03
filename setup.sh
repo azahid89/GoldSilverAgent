@@ -55,3 +55,5 @@ echo "1. Edit .env file and add your API keys (optional but recommended)"
 echo "2. Run: python3 main.py"
 echo ""
 
+
+

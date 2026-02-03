@@ -56,3 +56,5 @@ const predictionsSlice = createSlice({
 export const { setHorizon, clearPredictions } = predictionsSlice.actions;
 export default predictionsSlice.reducer;
 
+
+
