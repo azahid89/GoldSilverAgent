@@ -52,6 +52,27 @@ class MacroAgent(BaseAgent):
         vix_data = self.yahoo_client.get_vix(period="30d")
         if not vix_data.empty:
             data["vix"] = float(vix_data["Close"].iloc[-1])
+
+        # Fed Balance Sheet (liquidity)
+        balance_sheet = self.fred_client.get_fed_balance_sheet(days=90)
+        if not balance_sheet.empty and len(balance_sheet) >= 4:
+            # Weekly data, look at 4-week change
+            data["fed_liquidity_change"] = float(
+                (balance_sheet.iloc[-1] / balance_sheet.iloc[-4] - 1) * 100
+            )
+
+        # Yield Curve (economic outlook)
+        yield_curve = self.fred_client.get_yield_curve(days=30)
+        if not yield_curve.empty:
+            data["yield_curve"] = float(yield_curve.iloc[-1])
+
+        # Industrial Production (for silver industrial demand)
+        ind_prod = self.fred_client.get_industrial_production(days=365)
+        if not ind_prod.empty and len(ind_prod) >= 3:
+            # Monthly data, look at 3-month trend
+            data["industrial_production_trend"] = float(
+                (ind_prod.iloc[-1] / ind_prod.iloc[-3] - 1) * 100
+            )
         
         return data
     
@@ -121,6 +142,38 @@ class MacroAgent(BaseAgent):
             elif vix < 15:
                 signals.append(-0.2)  # Low fear = less safe haven demand
                 confidence_factors.append(0.1)
+
+        # Fed Liquidity (positive correlation with assets)
+        if "fed_liquidity_change" in data:
+            liq_change = data["fed_liquidity_change"]
+            if liq_change > 0.1:  # Expansion
+                signals.append(0.5)
+                drivers.append("Fed balance sheet expansion")
+                confidence_factors.append(0.15)
+            elif liq_change < -0.1:  # Contraction
+                signals.append(-0.5)
+                drivers.append("Fed balance sheet contraction")
+                confidence_factors.append(0.15)
+
+        # Yield Curve (recession signal)
+        if "yield_curve" in data:
+            yc = data["yield_curve"]
+            if yc < 0:  # Inversion
+                signals.append(0.4)
+                drivers.append("Yield curve inversion (macro risk)")
+                confidence_factors.append(0.1)
+
+        # Industrial Production (Specific to Silver)
+        if self.commodity == "silver" and "industrial_production_trend" in data:
+            ip_trend = data["industrial_production_trend"]
+            if ip_trend > 1.0:
+                signals.append(0.6)
+                drivers.append("Strong industrial production (silver demand)")
+                confidence_factors.append(0.2)
+            elif ip_trend < -1.0:
+                signals.append(-0.6)
+                drivers.append("Weak industrial production")
+                confidence_factors.append(0.2)
         
         # Calculate weighted signal
         if signals:
@@ -137,7 +190,7 @@ class MacroAgent(BaseAgent):
         
         # Confidence based on data quality and signal strength
         base_confidence = min(100, abs(weighted_signal) * 100)
-        data_quality = min(1.0, len([k for k in data.keys() if data[k] is not None]) / 5.0)
+        data_quality = min(1.0, len([k for k in data.keys() if data[k] is not None]) / 7.0) # increased total metrics
         confidence = base_confidence * data_quality
         
         return {

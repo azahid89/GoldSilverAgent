@@ -111,6 +111,18 @@ class YahooClient:
         """Get copper futures price"""
         return self.get_price_data(DATA_SOURCES["macro"]["copper"], period=period)
     
+    def get_platinum_price(self, period: str = "1y") -> pd.DataFrame:
+        """Get platinum futures price"""
+        return self.get_price_data(DATA_SOURCES["macro"]["platinum"], period=period)
+    
+    def get_palladium_price(self, period: str = "1y") -> pd.DataFrame:
+        """Get palladium futures price"""
+        return self.get_price_data(DATA_SOURCES["macro"]["palladium"], period=period)
+    
+    def get_bitcoin_price(self, period: str = "1y") -> pd.DataFrame:
+        """Get bitcoin price"""
+        return self.get_price_data(DATA_SOURCES["macro"]["bitcoin"], period=period)
+    
     def get_current_price(self, symbol: str) -> Optional[float]:
         """Get current/latest price"""
         data = self.get_price_data(symbol, period="5d")

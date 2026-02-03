@@ -72,6 +72,24 @@ class CorrelationAgent(BaseAgent):
                 copper_aligned = copper_prices.loc[common_dates].tail(30)
                 correlation = silver_aligned.corr(copper_aligned)
                 data["silver_copper_correlation"] = float(correlation)
+
+        # Precious Metals Correlation (Platinum/Palladium)
+        platinum_data = self.yahoo_client.get_platinum_price(period="90d")
+        if not gold_data.empty and not platinum_data.empty:
+            gold_prices = gold_data["Close"]
+            plat_prices = platinum_data["Close"]
+            common_dates = gold_prices.index.intersection(plat_prices.index)
+            if len(common_dates) >= 30:
+                data["gold_platinum_correlation"] = float(gold_prices.loc[common_dates].tail(30).corr(plat_prices.loc[common_dates].tail(30)))
+
+        # Bitcoin Correlation (Alternative safe haven/speculative asset)
+        btc_data = self.yahoo_client.get_bitcoin_price(period="90d")
+        if not gold_data.empty and not btc_data.empty:
+            gold_prices = gold_data["Close"]
+            btc_prices = btc_data["Close"]
+            common_dates = gold_prices.index.intersection(btc_prices.index)
+            if len(common_dates) >= 30:
+                data["gold_bitcoin_correlation"] = float(gold_prices.loc[common_dates].tail(30).corr(btc_prices.loc[common_dates].tail(30)))
         
         return data
     
@@ -144,6 +162,23 @@ class CorrelationAgent(BaseAgent):
             elif correlation < 0.3:
                 signals.append(-0.2)  # Weak industrial demand
                 confidence_factors.append(0.15)
+
+        # Platinum correlation (high correlation usually bullish for sector)
+        if "gold_platinum_correlation" in data:
+            corr = data["gold_platinum_correlation"]
+            if corr > 0.8:
+                signals.append(0.3)
+                drivers.append("Strong precious metals sector correlation")
+                confidence_factors.append(0.1)
+        
+        # Bitcoin correlation (divergence/convergence)
+        if "gold_bitcoin_correlation" in data:
+            corr = data["gold_bitcoin_correlation"]
+            if corr < -0.5:
+                # Strong inverse correlation = competing safe havens
+                signals.append(0.2)
+                drivers.append("Gold-Bitcoin divergence (safe haven rotation)")
+                confidence_factors.append(0.1)
         
         # Calculate weighted signal
         if signals:

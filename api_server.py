@@ -351,6 +351,27 @@ def get_market_context():
             current_silver = float(silver_data["Close"].iloc[-1])
             context.append(f"Silver: ${current_silver:,.2f} USD/oz")
         
+        # Add new macro indicators
+        try:
+            from data_sources.fred_client import FREDClient
+            fred_client = FREDClient()
+            
+            balance_sheet = fred_client.get_fed_balance_sheet(days=60)
+            if not balance_sheet.empty and len(balance_sheet) >= 2:
+                liq_change = (balance_sheet.iloc[-1] / balance_sheet.iloc[-2] - 1) * 100
+                context.append(f"Fed Balance Sheet Change (Weekly): {liq_change:+.2f}%")
+            
+            yield_curve = fred_client.get_yield_curve(days=7)
+            if not yield_curve.empty:
+                context.append(f"Yield Curve (10Y-2Y): {yield_curve.iloc[-1]:.2f}")
+        except Exception as e:
+            print(f"Error adding macro context: {e}")
+
+        # Add Bitcoin as sentiment proxy
+        btc_price = yahoo_client.get_current_price("BTC-USD")
+        if btc_price:
+            context.append(f"Bitcoin: ${btc_price:,.0f} USD")
+        
         # Get recent predictions if available
         try:
             gold_ensemble = get_ensemble_agent('gold')

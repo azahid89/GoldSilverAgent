@@ -35,6 +35,13 @@ DATA_SOURCES = {
         "pce": "PCEPI",  # PCE Price Index (FRED)
         "vix": "^VIX",  # VIX (CBOE Volatility Index)
         "copper": "HG=F",  # Copper Futures
+        "platinum": "PL=F",  # Platinum Futures
+        "palladium": "PA=F",  # Palladium Futures
+        "bitcoin": "BTC-USD",  # Bitcoin
+        "fed_balance_sheet": "WALCL",  # Fed Balance Sheet (FRED)
+        "money_supply": "M2SL",  # M2 Money Supply (FRED)
+        "yield_curve": "T10Y2Y",  # 10Y-2Y Spread (FRED)
+        "industrial_production": "IPMAN",  # Industrial Production (FRED)
     },
     "etf_flows": {
         "gld": "GLD",

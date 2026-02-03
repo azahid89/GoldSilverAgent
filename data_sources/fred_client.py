@@ -95,6 +95,43 @@ class FREDClient:
             print(f"Error fetching PCE: {e}")
             return pd.Series()
     
+    def get_series(self, series_id: str, days: int = 365, cache_ttl: int = 3600) -> pd.Series:
+        """Generic method to fetch any FRED series with caching"""
+        if not self.client:
+            return pd.Series()
+        
+        cache_key = f"fred_{series_id}_{days}"
+        cached_data = cache.get(cache_key)
+        if cached_data is not None:
+            return cached_data
+            
+        try:
+            end_date = datetime.now()
+            start_date = end_date - timedelta(days=days)
+            data = self.client.get_series(series_id, start=start_date, end=end_date)
+            cache.set(cache_key, data, ttl_seconds=cache_ttl)
+            return data
+        except Exception as e:
+            print(f"Error fetching FRED series {series_id}: {e}")
+            cache.set(cache_key, pd.Series(), ttl_seconds=60)
+            return pd.Series()
+
+    def get_fed_balance_sheet(self, days: int = 730) -> pd.Series:
+        """Get Fed Total Assets (WALCL)"""
+        return self.get_series("WALCL", days=days, cache_ttl=86400)  # Weekly data
+
+    def get_m2_money_supply(self, days: int = 730) -> pd.Series:
+        """Get M2 Money Stock (M2SL)"""
+        return self.get_series("M2SL", days=days, cache_ttl=86400)  # Monthly data
+
+    def get_yield_curve(self, days: int = 365) -> pd.Series:
+        """Get 10Y-2Y Treasury Yield Spread (T10Y2Y)"""
+        return self.get_series("T10Y2Y", days=days, cache_ttl=3600)  # Daily data
+
+    def get_industrial_production(self, days: int = 730) -> pd.Series:
+        """Get Industrial Production (IPMAN)"""
+        return self.get_series("IPMAN", days=days, cache_ttl=86400)  # Monthly data
+
     def calculate_real_rates(self) -> float:
         """
         Calculate real interest rates (10Y Treasury - Inflation)
