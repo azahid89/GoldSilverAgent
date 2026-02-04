@@ -3,7 +3,7 @@ import './Dashboard.css';
 import CommodityCard from './CommodityCard';
 import { RefreshCw, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
-const Dashboard = ({ predictions, loading, onRefresh }) => {
+const Dashboard = ({ predictions, loading, error, onRefresh }) => {
   const getSignalIcon = (signal) => {
     switch (signal?.toLowerCase()) {
       case 'bullish':
@@ -30,18 +30,20 @@ const Dashboard = ({ predictions, loading, onRefresh }) => {
     return (
       <div className="dashboard-loading">
         <RefreshCw className="spinner" />
-        <p>Loading predictions...</p>
+        <p>Analyzing market data...</p>
       </div>
     );
   }
 
-  if (!predictions) {
+  if (error || (!predictions.gold && !predictions.silver)) {
     return (
       <div className="dashboard-error">
-        <p>No predictions available. Please check the backend connection.</p>
+        <div className="error-icon">⚠️</div>
+        <h3>Analysis Unavailable</h3>
+        <p>{error || "No predictions available. Please check the backend connection."}</p>
         <button onClick={onRefresh} className="refresh-btn">
           <RefreshCw size={16} />
-          Retry
+          Retry Analysis
         </button>
       </div>
     );
@@ -118,6 +120,8 @@ const Dashboard = ({ predictions, loading, onRefresh }) => {
 };
 
 export default Dashboard;
+
+
 
 
 

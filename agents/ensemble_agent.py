@@ -11,6 +11,7 @@ from .market_agent import MarketAgent
 from .technical_agent import TechnicalAgent
 from .fundamental_agent import FundamentalAgent
 from .correlation_agent import CorrelationAgent
+from .sentiment_agent import SentimentAgent
 from config import AGENT_WEIGHTS
 
 
@@ -25,6 +26,7 @@ class EnsembleAgent:
             "technical": TechnicalAgent(commodity=commodity),
             "fundamental": FundamentalAgent(commodity=commodity),
             "correlation": CorrelationAgent(commodity="both"),
+            "sentiment": SentimentAgent(commodity=commodity),
         }
         self.weights = AGENT_WEIGHTS
     

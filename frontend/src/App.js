@@ -9,21 +9,24 @@ import { fetchPredictions } from './store/slices/predictionsSlice';
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const dispatch = useDispatch();
-  const { gold, silver, loading } = useSelector((state) => state.predictions);
+  const { gold, silver, loading, error } = useSelector((state) => state.predictions);
+  const { messages } = useSelector((state) => state.chat);
 
   useEffect(() => {
-    // Fetch predictions if not already loaded
-    if (!gold && !silver && !loading) {
+    // Fetch predictions if not already loaded and no error exists
+    if (!gold && !silver && !loading && !error) {
       dispatch(fetchPredictions(90));
     }
     
-    // Refresh predictions every 5 minutes
+    // Refresh predictions every 5 minutes if no active error
     const interval = setInterval(() => {
-      dispatch(fetchPredictions(90));
+      if (!error) {
+        dispatch(fetchPredictions(90));
+      }
     }, 300000);
     
     return () => clearInterval(interval);
-  }, [dispatch, gold, silver, loading]);
+  }, [dispatch, gold, silver, loading, error]);
 
   const handleRefresh = () => {
     dispatch(fetchPredictions(90));
@@ -58,6 +61,7 @@ function App() {
           <Dashboard 
             predictions={{ gold, silver }} 
             loading={loading} 
+            error={error}
             onRefresh={handleRefresh} 
           />
         )}

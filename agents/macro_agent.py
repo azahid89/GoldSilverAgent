@@ -73,6 +73,34 @@ class MacroAgent(BaseAgent):
             data["industrial_production_trend"] = float(
                 (ind_prod.iloc[-1] / ind_prod.iloc[-3] - 1) * 100
             )
+
+        # China Industrial Output (for silver demand proxy)
+        china_ip = self.fred_client.get_china_industrial_output(days=365)
+        if not china_ip.empty and len(china_ip) >= 3:
+            data["china_ip_trend"] = float(
+                (china_ip.iloc[-1] / china_ip.iloc[-3] - 1) * 100
+            )
+
+        # Central Bank Gold Reserves
+        gold_reserves = self.fred_client.get_gold_reserves(days=730)
+        if not gold_reserves.empty and len(gold_reserves) >= 12:
+            data["gold_reserves_change_yoy"] = float(
+                (gold_reserves.iloc[-1] / gold_reserves.iloc[-12] - 1) * 100
+            )
+
+        # Advanced Industrial Signals (for Silver)
+        if self.commodity == "silver" or self.commodity == "both":
+            semi_prod = self.fred_client.get_semiconductor_production(days=365)
+            if not semi_prod.empty and len(semi_prod) >= 3:
+                data["solar_proxy_trend"] = float(
+                    (semi_prod.iloc[-1] / semi_prod.iloc[-3] - 1) * 100
+                )
+            
+            auto_prod = self.fred_client.get_auto_production(days=365)
+            if not auto_prod.empty and len(auto_prod) >= 3:
+                data["ev_proxy_trend"] = float(
+                    (auto_prod.iloc[-1] / auto_prod.iloc[-3] - 1) * 100
+                )
         
         return data
     
@@ -174,6 +202,39 @@ class MacroAgent(BaseAgent):
                 signals.append(-0.6)
                 drivers.append("Weak industrial production")
                 confidence_factors.append(0.2)
+
+        # China IP Impact (Higher weight for silver)
+        if "china_ip_trend" in data:
+            chip_trend = data["china_ip_trend"]
+            weight = 0.2 if self.commodity == "silver" else 0.1
+            if chip_trend > 1.0:
+                signals.append(0.5)
+                drivers.append("Growth in China industrial output")
+                confidence_factors.append(weight)
+            elif chip_trend < -1.0:
+                signals.append(-0.5)
+                drivers.append("Decline in China industrial output")
+                confidence_factors.append(weight)
+
+        # Central Bank Gold Reserves (Bullish for Gold)
+        if self.commodity == "gold" and "gold_reserves_change_yoy" in data:
+            res_change = data["gold_reserves_change_yoy"]
+            if res_change > 0:
+                signals.append(0.4)
+                drivers.append("Central Banks increasing gold reserves")
+                confidence_factors.append(0.15)
+
+        # Solar/EV Impact (Specific to Silver)
+        if self.commodity == "silver":
+            if "solar_proxy_trend" in data and data["solar_proxy_trend"] > 0.5:
+                signals.append(0.4)
+                drivers.append("Increasing solar panel component production")
+                confidence_factors.append(0.1)
+            
+            if "ev_proxy_trend" in data and data["ev_proxy_trend"] > 0.5:
+                signals.append(0.3)
+                drivers.append("Growth in automobile/EV production")
+                confidence_factors.append(0.1)
         
         # Calculate weighted signal
         if signals:

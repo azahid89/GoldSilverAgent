@@ -132,6 +132,22 @@ class FREDClient:
         """Get Industrial Production (IPMAN)"""
         return self.get_series("IPMAN", days=days, cache_ttl=86400)  # Monthly data
 
+    def get_gold_reserves(self, days: int = 1825) -> pd.Series:
+        """Get Central Bank Gold Reserves (US proxy: M14062USM027NNBR)"""
+        return self.get_series("M14062USM027NNBR", days=days, cache_ttl=604800)  # Weekly/Monthly
+
+    def get_china_industrial_output(self, days: int = 1825) -> pd.Series:
+        """Get China Industrial Production (PRINTO01CNQ663N)"""
+        return self.get_series("PRINTO01CNQ663N", days=days, cache_ttl=604800)
+
+    def get_semiconductor_production(self, days: int = 730) -> pd.Series:
+        """Get Semiconductor Production (Solar proxy - IPG3344S)"""
+        return self.get_series("IPG3344S", days=days, cache_ttl=86400)
+
+    def get_auto_production(self, days: int = 730) -> pd.Series:
+        """Get Auto Production (EV proxy - IPG3361T3S)"""
+        return self.get_series("IPG3361T3S", days=days, cache_ttl=86400)
+
     def calculate_real_rates(self) -> float:
         """
         Calculate real interest rates (10Y Treasury - Inflation)

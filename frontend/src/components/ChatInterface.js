@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import './ChatInterface.css';
 import { Send, Bot, User, Loader } from 'lucide-react';
 import { addMessage, updateLastMessage, setLoading } from '../store/slices/chatSlice';
+import API_BASE_URL from '../config';
 
 const ChatInterface = () => {
   const dispatch = useDispatch();
@@ -51,7 +52,7 @@ const ChatInterface = () => {
     dispatch(setLoading(true));
 
     try {
-      const response = await fetch('/api/chat', {
+      const response = await fetch(`${API_BASE_URL}/api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

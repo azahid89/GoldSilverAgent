@@ -3,10 +3,12 @@ Fundamental Signal Agent - Real Rates, ETF Flows, Inflation Surprises
 """
 from typing import Dict, Any, Optional
 import numpy as np
+import pandas as pd
 
 from .base_agent import BaseAgent
 from data_sources.fred_client import FREDClient
 from data_sources.etf_client import ETFClient
+from data_sources.nasdaq_client import NasdaqClient
 
 
 class FundamentalAgent(BaseAgent):
@@ -16,6 +18,7 @@ class FundamentalAgent(BaseAgent):
         super().__init__("FundamentalAgent", commodity)
         self.fred_client = FREDClient()
         self.etf_client = ETFClient()
+        self.nasdaq_client = NasdaqClient()
     
     def fetch_data(self) -> Dict[str, Any]:
         """Fetch fundamental data"""
@@ -53,6 +56,20 @@ class FundamentalAgent(BaseAgent):
         if etf_data:
             data["etf_flow_momentum"] = etf_data.get("flow_momentum", 0.0)
             data["etf_price_change"] = etf_data.get("price_change_30d", 0.0)
+
+        # COT Reports (Institutional Positioning)
+        cot_data = pd.DataFrame()
+        if self.commodity == "gold":
+            cot_data = self.nasdaq_client.get_gold_cot()
+        elif self.commodity == "silver":
+            cot_data = self.nasdaq_client.get_silver_cot()
+            
+        if not cot_data.empty and "Noncommercial Long" in cot_data.columns:
+            # Calculate Net Non-Commercial Position Trend
+            latest_net = cot_data["Noncommercial Long"].iloc[-1] - cot_data["Noncommercial Short"].iloc[-1]
+            prev_net = cot_data["Noncommercial Long"].iloc[-4] - cot_data["Noncommercial Short"].iloc[-4] if len(cot_data) >= 4 else latest_net
+            data["cot_net_position"] = float(latest_net)
+            data["cot_position_change"] = float(latest_net - prev_net)
         
         return data
     
@@ -128,6 +145,18 @@ class FundamentalAgent(BaseAgent):
             elif flow_momentum < -2:
                 signals.append(-0.4)
                 confidence_factors.append(0.15)
+
+        # COT Positioning
+        if "cot_position_change" in data:
+            pos_change = data["cot_position_change"]
+            if pos_change > 5000:  # Arbitrary threshold for gold/silver contracts
+                signals.append(0.6)
+                drivers.append("Increasing institutional long positions")
+                confidence_factors.append(0.2)
+            elif pos_change < -5000:
+                signals.append(-0.6)
+                drivers.append("Decreasing institutional long positions")
+                confidence_factors.append(0.2)
         
         # Calculate weighted signal
         if signals:

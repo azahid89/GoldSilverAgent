@@ -14,18 +14,23 @@ except ImportError:
 # API Keys
 FRED_API_KEY = os.getenv("FRED_API_KEY", "")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+ALPHA_VANTAGE_API_KEY = os.getenv("ALPHA_VANTAGE_API_KEY", "")
+NASDAQ_DATA_LINK_API_KEY = os.getenv("NASDAQ_DATA_LINK_API_KEY", "")
+NEWS_API_KEY = os.getenv("NEWS_API_KEY", "")  # For headlines
 
 # Data Sources
 DATA_SOURCES = {
     "gold": {
         "spot": "GC=F",  # COMEX Gold Futures
         "etf": "GLD",
-        "volatility": "^GVZ",  # Gold Volatility Index (may not be available)
+        "volatility": "^GVZ",  # Gold Volatility Index
+        "lbma": "GOLDAMGBD228NLBM",  # LBMA Gold Price (FRED)
     },
     "silver": {
         "spot": "SI=F",  # COMEX Silver Futures
         "etf": "SLV",
-        "volatility": "^SVZ",  # Silver Volatility Index (may not be available)
+        "volatility": "^SVZ",  # Silver Volatility Index
+        "lbma": "SLVPRUSD",  # LBMA Silver Price (FRED)
     },
     "macro": {
         "dxy": "DX-Y.NYB",  # USD Dollar Index
@@ -42,10 +47,21 @@ DATA_SOURCES = {
         "money_supply": "M2SL",  # M2 Money Supply (FRED)
         "yield_curve": "T10Y2Y",  # 10Y-2Y Spread (FRED)
         "industrial_production": "IPMAN",  # Industrial Production (FRED)
+        "semiconductor_prod": "IPG3344S", # Solar proxy (FRED)
+        "auto_prod": "IPG3361T3S", # EV proxy (FRED)
+        "central_bank_reserves": "M14062USM027NNBR",  # US Gold Reserves (FRED)
+        "china_industrial_output": "PRINTO01CNQ663N", # China Industrial Production (FRED)
     },
     "etf_flows": {
         "gld": "GLD",
         "slv": "SLV",
+    },
+    "sentiment": {
+        "sources": [
+            "https://www.reuters.com/arc/outboundfeeds/news-handler/?facetId=commodities&format=xml",
+            "https://www.bloomberg.com/feeds/bview/commodities.xml",
+        ],
+        "keywords": ["gold", "silver", "xau", "xag", "bullion", "precious metals"]
     }
 }
 
@@ -58,11 +74,12 @@ PREDICTION_HORIZONS = {
 
 # Agent Weights (for ensemble)
 AGENT_WEIGHTS = {
-    "macro": 0.25,
-    "market": 0.20,
+    "macro": 0.20,
+    "market": 0.15,
     "technical": 0.15,
     "fundamental": 0.20,
-    "correlation": 0.20,
+    "correlation": 0.15,
+    "sentiment": 0.15,
 }
 
 # Confidence Thresholds

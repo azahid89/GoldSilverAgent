@@ -1,10 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import API_BASE_URL from '../../config';
 
 // Async thunk for fetching current prices
 export const fetchPrices = createAsyncThunk(
   'prices/fetchPrices',
   async () => {
-    const response = await fetch('/api/prices');
+    const response = await fetch(`${API_BASE_URL}/api/prices`);
     if (!response.ok) {
       throw new Error('Failed to fetch prices');
     }
@@ -51,6 +52,8 @@ const pricesSlice = createSlice({
 
 export const { clearPrices } = pricesSlice.actions;
 export default pricesSlice.reducer;
+
+
 
 
 

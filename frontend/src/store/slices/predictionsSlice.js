@@ -1,10 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import API_BASE_URL from '../../config';
 
 // Async thunk for fetching predictions
 export const fetchPredictions = createAsyncThunk(
   'predictions/fetchPredictions',
   async (horizon = 90) => {
-    const response = await fetch(`/api/predictions?horizon=${horizon}`);
+    const response = await fetch(`${API_BASE_URL}/api/predictions?horizon=${horizon}`);
     if (!response.ok) {
       throw new Error('Failed to fetch predictions');
     }
@@ -55,6 +56,8 @@ const predictionsSlice = createSlice({
 
 export const { setHorizon, clearPredictions } = predictionsSlice.actions;
 export default predictionsSlice.reducer;
+
+
 
 
 
